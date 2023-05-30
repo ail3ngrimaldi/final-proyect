@@ -26,10 +26,11 @@ fn mostrar_datos_ventana(data: &str) {
 }
 
 
+
 fn main() -> Result<()> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
     let mut window = Window::new(100, 100, 400, 650, "Mi Aplicación Rust");
-    let mut frame = Frame::new(0, 0, 400, 50, "");
+    let mut frame = Frame::new(0, 0, 400, 50, "Completá el formulario");
     let mut button_save = Button::new(110, 520, 80, 40, "Guardar");
     let mut button_see_data = Button::new(210, 520, 80, 40, "Ver datos");
     let mut input_calle = Input::new(100, 100, 200, 30, "Calle");
@@ -90,37 +91,52 @@ fn main() -> Result<()> {
         )
         .expect("Error al insertar datos");
     
-        if let Ok(data) = database::mostrar_datos(&conn) {
-            if data.is_empty() {
-                println!("No hay datos para mostrar");
-            } else {
-                let data_text = data
-                    .iter()
-                    .map(|vivienda| format!("Calle: {}, Número: {}, Piso: {:?}, Código Postal: {}, Metros Cuadrados: {}, Cantidad de Baños: {}, Cantidad de Habitaciones: {}, Tipo: {}",
-                                            vivienda.calle,
-                                            vivienda.numero,
-                                            vivienda.piso,
-                                            vivienda.codigo_postal,
-                                            vivienda.metros_cuadrados,
-                                            vivienda.cantidad_banios,
-                                            vivienda.cantidad_habitaciones,
-                                            vivienda.tipo))
-                    .collect::<Vec<String>>()
-                    .join("\n");
-        
-                mostrar_datos_ventana(&data_text.to_string());
-            }
-        } else {
-            println!("Error al mostrar datos");
-        }
+        mostrar_datos(&conn); 
          
     
     
         // Resto del código para limpiar los campos de entrada o mostrar un mensaje de éxito
     });
 
+    button_see_data.set_callback(move |_| {
+        if let Ok(conn) = Connection::open("datos.db") {
+            mostrar_datos(&conn); // Mostrar datos al hacer clic en "Ver datos"
+        } else {
+            println!("Error al abrir la conexión");
+        }
+    });
+
 
     app.run().unwrap();
 
     Ok(())
+}
+
+// funcion mostrar datos, reutilizable
+fn mostrar_datos(conn: &Connection) {
+    if let Ok(data) = database::mostrar_datos(conn) {
+        if data.is_empty() {
+            println!("No hay datos para mostrar");
+        } else {
+            let data_text = data
+                .iter()
+                .map(|vivienda| format!(
+                    "Calle: {}, Número: {}, Piso: {:?}, Código Postal: {}, Metros Cuadrados: {}, Cantidad de Baños: {}, Cantidad de Habitaciones: {}, Tipo: {}",
+                    vivienda.calle,
+                    vivienda.numero,
+                    vivienda.piso,
+                    vivienda.codigo_postal,
+                    vivienda.metros_cuadrados,
+                    vivienda.cantidad_banios,
+                    vivienda.cantidad_habitaciones,
+                    vivienda.tipo
+                ))
+                .collect::<Vec<String>>()
+                .join("\n");
+
+            mostrar_datos_ventana(&data_text.to_string());
+        }
+    } else {
+        println!("Error al mostrar datos");
+    }
 }
