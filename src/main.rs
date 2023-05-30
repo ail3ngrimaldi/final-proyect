@@ -15,16 +15,37 @@ mod models;
 
 pub use crate::models::Vivienda;
 
-fn mostrar_datos_ventana(data: &str) {
-    let mut window = Window::new(100, 100, 400, 300, "Datos");
+fn mostrar_datos_ventana(data: &str, conn: Connection) {
+    let mut window = Window::new(100, 100, 1200, 300, "Datos");
     let mut text_buffer = TextBuffer::default();
-    let mut text_display = TextDisplay::new(10, 10, 380, 280, "");
+    let mut text_display = TextDisplay::new(10, 10, 1180, 280, "");
     text_buffer.set_text(&data.to_string());
     text_display.set_buffer(Some(text_buffer));
+    window.make_resizable(true);
     window.end();
     window.show();
-}
 
+    let lines = data.lines().collect::<Vec<_>>();
+    for (index, line) in lines.iter().enumerate() {
+        let mut delete_button = Button::new(10, 300 + index as i32 * 30, 80, 20, "Delete");
+        let line_copy = line.to_string();
+        let conn_copy = &conn;
+
+        delete_button.set_callback(move |_| {
+            let elements: Vec<_> = line_copy.split(", ").collect();
+            if elements.len() == 8 {
+                let calle = elements[0].split(": ").nth(1).unwrap();
+                let numero = elements[1].split(": ").nth(1).unwrap();
+                let codigo_postal = elements[3].split(": ").nth(1).unwrap();
+                if let Err(err) = database::eliminar_dato(&conn_copy, calle, numero, codigo_postal) {
+                    println!("Error al eliminar dato: {:?}", err);
+                } else {
+                    println!("Dato eliminado correctamente");
+                }
+            }
+        });
+    }
+}
 
 
 fn main() -> Result<()> {
@@ -93,9 +114,6 @@ fn main() -> Result<()> {
     
         mostrar_datos(&conn); 
          
-    
-    
-        // Resto del código para limpiar los campos de entrada o mostrar un mensaje de éxito
     });
 
     button_see_data.set_callback(move |_| {

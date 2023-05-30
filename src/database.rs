@@ -1,4 +1,4 @@
-use rusqlite::{Connection, Result};
+use rusqlite::{Connection, Result, params};
 use crate::models::Vivienda;
 
 pub fn insertar_datos(
@@ -102,4 +102,14 @@ pub fn mostrar_datos(conn: &Connection) -> Result<Vec<Vivienda>, rusqlite::Error
     }
 
     Ok(viviendas)
+}
+
+
+pub fn eliminar_dato(conn: &Connection, calle: &str, numero: &str, codigo_postal: &str) -> Result<()> {
+    conn.execute(
+        "DELETE FROM viviendas WHERE calle = ? AND numero = ? AND codigo_postal = ?",
+        params![calle, numero, codigo_postal],
+    )?;
+    println!("Dato eliminado correctamente");
+    Ok(())
 }
