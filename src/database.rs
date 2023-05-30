@@ -1,4 +1,5 @@
 use rusqlite::{Connection, Result};
+use crate::models::Vivienda;
 
 pub fn insertar_datos(
     conn: &Connection,
@@ -25,6 +26,14 @@ pub fn insertar_datos(
         Ok(num) => num,
         Err(_) => {
             println!("Error: El campo 'Piso' debe ser un número entero.");
+            return Err(rusqlite::Error::QueryReturnedNoRows);
+        }
+    };
+
+    let codigo_postal: i32 = match codigo_postal.parse() {
+        Ok(num) => num,
+        Err(_) => {
+            println!("Error: El campo 'Código Postal' debe ser un número entero.");
             return Err(rusqlite::Error::QueryReturnedNoRows);
         }
     };
@@ -60,32 +69,37 @@ pub fn insertar_datos(
     // Implementación de la función insertar_datos
     conn.execute(
         "INSERT INTO viviendas (calle, numero, piso, codigo_postal, metros_cuadrados, cantidad_banios, cantidad_habitaciones, tipo) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-        &[calle, &numero.to_string(), &piso.to_string(), codigo_postal, &metros_cuadrados.to_string(), &cantidad_banios.to_string(), &cantidad_habitaciones.to_string(), tipo],
+        &[calle, &numero.to_string(), &piso.to_string(), &codigo_postal.to_string(), &metros_cuadrados.to_string(), &cantidad_banios.to_string(), &cantidad_habitaciones.to_string(), tipo],
     )?;
     Ok(())
 }
 
 
-pub fn mostrar_datos(conn: &Connection) -> Result<()> {
+pub fn mostrar_datos(conn: &Connection) -> Result<Vec<Vivienda>, rusqlite::Error> {
     let mut stmt = conn.prepare("SELECT * FROM viviendas")?;
     let rows = stmt.query_map([], |row| {
-        Ok((
-            row.get::<_, i32>(0)?,  // id
-            row.get::<_, String>(1)?,  // calle
-            row.get::<_, i32>(2)?,  // numero
-            row.get::<_, i32>(3)?,  // piso
-            row.get::<_, i32>(4)?,  // codigo_postal
-            row.get::<_, f64>(5)?,  // metros_cuadrados
-            row.get::<_, i32>(6)?,  // cantidad_banios
-            row.get::<_, i32>(7)?,  // cantidad_habitaciones
-            row.get::<_, String>(8)?,  // tipo
-        ))
+        Ok(Vivienda {
+            calle: row.get(1)?,
+            numero: row.get(2)?,
+            piso: row.get(3).ok(),
+            codigo_postal: row.get(4)?,
+            metros_cuadrados: row.get(5)?,
+            cantidad_banios: row.get(6)?,
+            cantidad_habitaciones: row.get(7)?,
+            tipo: row.get(8)?,
+        })
     })?;
 
+    let mut viviendas = Vec::new();
     for row in rows {
-        let (id, calle, numero, piso, codigo_postal, metros_cuadrados, cantidad_banios, cantidad_habitaciones, tipo) = row?;
-        println!("ID: {}, Calle: {}, Número: {}, Piso: {}, Código Postal: {}, Metros Cuadrados: {}, Cantidad de Baños: {}, Cantidad de Habitaciones: {}, Tipo: {}", id, calle, numero, piso, codigo_postal, metros_cuadrados, cantidad_banios, cantidad_habitaciones, tipo);
+        match row {
+            Ok(vivienda) => viviendas.push(vivienda),
+            Err(err) => {
+                println!("Error al obtener fila: {}", err);
+                return Err(err);
+            }
+        }
     }
 
-    Ok(())
+    Ok(viviendas)
 }
