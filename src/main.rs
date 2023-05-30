@@ -30,7 +30,8 @@ fn main() -> Result<()> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
     let mut window = Window::new(100, 100, 400, 650, "Mi Aplicación Rust");
     let mut frame = Frame::new(0, 0, 400, 50, "");
-    let mut button = Button::new(160, 520, 80, 40, "Guardar");
+    let mut button_save = Button::new(110, 520, 80, 40, "Guardar");
+    let mut button_see_data = Button::new(210, 520, 80, 40, "Ver datos");
     let mut input_calle = Input::new(100, 100, 200, 30, "Calle");
     let mut input_numero = Input::new(100, 150, 200, 30, "Número");
     let mut input_piso = Input::new(100, 200, 200, 30, "Piso");
@@ -66,7 +67,7 @@ fn main() -> Result<()> {
     )?;
     println!("Tabla 'viviendas' creada correctamente.");
 
-    button.set_callback(move |_| {
+    button_save.set_callback(move |_| {
         let calle = input_calle.value();
         let numero = input_numero.value();
         let piso = input_piso.value();
