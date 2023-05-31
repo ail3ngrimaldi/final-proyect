@@ -1,6 +1,8 @@
 use rusqlite::{Connection, Result, params};
 use crate::models::Vivienda;
 
+
+// Función para insertar datos en la database
 pub fn insertar_datos(
     conn: &Connection,
     calle: &str,
@@ -66,7 +68,6 @@ pub fn insertar_datos(
     };
 
     // Resto del código para insertar los datos en la base de datos
-    // Implementación de la función insertar_datos
     conn.execute(
         "INSERT INTO viviendas (calle, numero, piso, codigo_postal, metros_cuadrados, cantidad_banios, cantidad_habitaciones, tipo) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
         &[calle, &numero.to_string(), &piso.to_string(), &codigo_postal.to_string(), &metros_cuadrados.to_string(), &cantidad_banios.to_string(), &cantidad_habitaciones.to_string(), tipo],
@@ -104,7 +105,41 @@ pub fn mostrar_datos(conn: &Connection) -> Result<Vec<Vivienda>, rusqlite::Error
     Ok(viviendas)
 }
 
+// Función para borrar datos que ya se encuentran en la database
 pub fn borrar_datos(conn: &Connection, calle: &str, numero: &str) -> Result<usize> {
     let affected_rows = conn.execute("DELETE FROM viviendas WHERE calle = ? AND numero = ?", params![calle, numero])?;
     Ok(affected_rows)
+}
+
+// Función para editar datos que ya se encuentran en la database
+pub fn editar_datos(
+    conn: &Connection,
+    calle: &str,
+    numero: &str,
+    calle_new: &str,
+    numero_new: &str,
+    piso_new: &str,
+    codigo_postal_new: &str,
+    metros_cuadrados_new: &str,
+    cantidad_banios_new: &str,
+    cantidad_habitaciones_new: &str,
+    tipo_new: &str,
+) -> Result<usize> {
+    conn.execute(
+        "UPDATE viviendas 
+        SET calle = ?, numero = ?, piso = ?, codigo_postal = ?, metros_cuadrados = ?, cantidad_banios = ?, cantidad_habitaciones = ?, tipo = ? 
+        WHERE calle = ? AND numero = ?",
+        params![
+            calle_new,
+            numero_new,
+            piso_new,
+            codigo_postal_new,
+            metros_cuadrados_new,
+            cantidad_banios_new,
+            cantidad_habitaciones_new,
+            tipo_new,
+            calle,
+            numero
+        ],
+    )
 }

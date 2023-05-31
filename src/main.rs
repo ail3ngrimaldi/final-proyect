@@ -36,20 +36,20 @@ fn mostrar_datos_ventana(data: &str) {
 
 fn main() -> Result<()> {
     let app = app::App::default().with_scheme(app::Scheme::Gleam);
-    let mut window = Window::new(100, 100, 400, 650, "Mi Aplicación Rust");
-    let mut frame = Frame::new(0, 0, 400, 50, "Completá el formulario");
-    let mut button_save = Button::new(110, 520, 80, 40, "Guardar");
-    let mut button_see_data = Button::new(210, 520, 80, 40, "Ver datos");
-    let mut delete_window = Button::new(110, 620, 80, 40, "Borrar");
-    let mut input_calle = Input::new(100, 100, 200, 30, "Calle");
-    let mut input_numero = Input::new(100, 150, 200, 30, "Número");
-    let mut input_piso = Input::new(100, 200, 200, 30, "Piso");
-    let mut input_codigo_postal = Input::new(100, 250, 200, 30, "Código Postal");
-    let mut input_metros_cuadrados = Input::new(100, 300, 200, 30, "Metros Cuadrados");
-    let mut input_cantidad_banios = Input::new(100, 350, 200, 30, "Cantidad de Baños");
-    let mut input_cantidad_habitaciones =
-        Input::new(100, 400, 200, 30, "Cantidad de Habitaciones");
-    let mut input_tipo = Input::new(100, 450, 200, 30, "Tipo");
+    let mut window = Window::new(100, 100, 500, 650, "Mi Aplicación Rust");
+    let mut frame = Frame::new(0, 0, 500, 50, "Completá el formulario");
+    let mut button_save = Button::new(210, 520, 80, 40, "Guardar");
+    let mut button_see_data = Button::new(310, 520, 80, 40, "Ver datos");
+    let mut delete_window = Button::new(210, 570, 80, 40, "Borrar");
+    let mut button_edit = Button::new(310, 570, 80, 40, "Editar");
+    let input_calle = Input::new(200, 100, 200, 30, "Calle");
+    let input_numero = Input::new(200, 150, 200, 30, "Número");
+    let input_piso = Input::new(200, 200, 200, 30, "Piso");
+    let input_codigo_postal = Input::new(200, 250, 200, 30, "Código Postal");
+    let input_metros_cuadrados = Input::new(200, 300, 200, 30, "Metros Cuadrados");
+    let input_cantidad_banios = Input::new(200, 350, 200, 30, "Cantidad de Baños");
+    let input_cantidad_habitaciones = Input::new(200, 400, 200, 30, "Cantidad de Habitaciones");
+    let input_tipo = Input::new(200, 450, 200, 30, "Tipo");
 
     window.set_color(Color::White);
     window.make_resizable(true);
@@ -148,6 +148,58 @@ fn main() -> Result<()> {
                     }
                     Err(_) => {
                         alert(200, 200, "Error al borrar datos.");
+                    }
+                }
+            } else {
+                alert(200, 200, "Error al abrir la conexión");
+            }
+        });
+    });
+
+    button_edit.set_callback(move |_| {
+        let mut edit_window = Window::new(500, 400, 400, 650, "Editar datos");
+        let mut edit_frame = Frame::new(0, 0, 400, 50, "Ingresa la Calle y el Número a editar y los nuevos datos");
+        let mut edit_button = Button::new(150, 600, 150, 40, "Guardar cambios");
+        let mut input_calle_edit = Input::new(100, 100, 200, 30, "Calle a editar");
+        let mut input_numero_edit = Input::new(100, 150, 200, 30, "Número a editar");
+        // campos para los nuevos datos
+        let mut input_calle_new = Input::new(100, 200, 200, 30, "Nueva Calle");
+        let mut input_numero_new = Input::new(100, 250, 200, 30, "Nuevo Número");
+        let mut input_piso_new = Input::new(100, 300, 200, 30, "Nuevo Piso");
+        let mut input_codigo_postal_new = Input::new(100, 350, 200, 30, "Nuevo Código Postal");
+        let mut input_metros_cuadrados_new = Input::new(100, 400, 200, 30, "Nuevos Metros Cuadrados");
+        let mut input_cantidad_banios_new = Input::new(100, 450, 200, 30, "Nueva Cantidad de Baños");
+        let mut input_cantidad_habitaciones_new = Input::new(100, 500, 200, 30, "Nueva Cantidad de Habitaciones");
+        let mut input_tipo_new = Input::new(100, 550, 200, 30, "Nuevo Tipo");
+    
+        edit_window.end();
+        edit_window.show();
+    
+        edit_button.set_callback(move |_| {
+            if let Ok(conn) = Connection::open("datos.db") {
+                let calle_edit = input_calle_edit.value();
+                let numero_edit = input_numero_edit.value();
+                // obtener los nuevos valores
+                let calle_new = input_calle_new.value();
+                let numero_new = input_numero_new.value();
+                let piso_new = input_piso_new.value();
+                let codigo_postal_new = input_codigo_postal_new.value();
+                let metros_cuadrados_new = input_metros_cuadrados_new.value();
+                let cantidad_banios_new = input_cantidad_banios_new.value();
+                let cantidad_habitaciones_new = input_cantidad_habitaciones_new.value();
+                let tipo_new = input_tipo_new.value();
+    
+                match database::editar_datos(&conn, &calle_edit, &numero_edit, &calle_new, &numero_new, &piso_new, &codigo_postal_new, &metros_cuadrados_new, &cantidad_banios_new, &cantidad_habitaciones_new, &tipo_new) {
+                    Ok(rows) => {
+                        if rows > 0 {
+                            alert(200, 200, "Datos editados exitosamente.");
+                            edit_window.hide(); // Cerrar la ventana después de editar
+                        } else {
+                            alert(200, 200, "No se encontraron datos para editar.");
+                        }
+                    }
+                    Err(_) => {
+                        alert(200, 200, "Error al editar datos.");
                     }
                 }
             } else {
