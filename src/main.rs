@@ -24,13 +24,6 @@ fn mostrar_datos_ventana(data: &str) {
     window.make_resizable(true);
     window.end();
     window.show();
-
-    let lines = data.lines().collect::<Vec<_>>();
-    for (index, line) in lines.iter().enumerate() {
-        let mut delete_button = Button::new(10, 300 + index as i32 * 30, 80, 20, "Delete");
-        let line_copy = line.to_string();
-
-    }
 }
 
 
@@ -98,7 +91,6 @@ fn main() -> Result<()> {
         // Muestra una alerta si alguno de los campos de entrada está vacío
         fltk::dialog::alert_default("El formulario no puede ser enviado vacío");
     } else {
-
         database::insertar_datos(
             &conn,
             &calle,
@@ -125,10 +117,9 @@ fn main() -> Result<()> {
 
     delete_window.set_callback(move |_| {
         let mut delete_window = Window::new(400, 300, 400, 300, "Borrar datos");
-        let mut delete_frame = Frame::new(0, 0, 400, 50, "Ingresa la Calle y el Número a borrar");
         let mut delete_button = Button::new(150, 200, 100, 40, "Borrar");
-        let mut input_calle_delete = Input::new(100, 100, 200, 30, "Calle");
-        let mut input_numero_delete = Input::new(100, 150, 200, 30, "Número");
+        let input_calle_delete = Input::new(100, 100, 200, 30, "Calle");
+        let input_numero_delete = Input::new(100, 150, 200, 30, "Número");
         delete_window.end();
         delete_window.show();
     
@@ -158,19 +149,18 @@ fn main() -> Result<()> {
 
     button_edit.set_callback(move |_| {
         let mut edit_window = Window::new(500, 400, 400, 650, "Editar datos");
-        let mut edit_frame = Frame::new(0, 0, 400, 50, "Ingresa la Calle y el Número a editar y los nuevos datos");
         let mut edit_button = Button::new(150, 600, 150, 40, "Guardar cambios");
-        let mut input_calle_edit = Input::new(100, 100, 200, 30, "Calle a editar");
-        let mut input_numero_edit = Input::new(100, 150, 200, 30, "Número a editar");
+        let input_calle_edit = Input::new(100, 100, 200, 30, "Calle a editar");
+        let input_numero_edit = Input::new(100, 150, 200, 30, "Número a editar");
         // campos para los nuevos datos
-        let mut input_calle_new = Input::new(100, 200, 200, 30, "Nueva Calle");
-        let mut input_numero_new = Input::new(100, 250, 200, 30, "Nuevo Número");
-        let mut input_piso_new = Input::new(100, 300, 200, 30, "Nuevo Piso");
-        let mut input_codigo_postal_new = Input::new(100, 350, 200, 30, "Nuevo Código Postal");
-        let mut input_metros_cuadrados_new = Input::new(100, 400, 200, 30, "Nuevos Metros Cuadrados");
-        let mut input_cantidad_banios_new = Input::new(100, 450, 200, 30, "Nueva Cantidad de Baños");
-        let mut input_cantidad_habitaciones_new = Input::new(100, 500, 200, 30, "Nueva Cantidad de Habitaciones");
-        let mut input_tipo_new = Input::new(100, 550, 200, 30, "Nuevo Tipo");
+        let input_calle_new = Input::new(100, 200, 200, 30, "Nueva Calle");
+        let input_numero_new = Input::new(100, 250, 200, 30, "Nuevo Número");
+        let input_piso_new = Input::new(100, 300, 200, 30, "Nuevo Piso");
+        let input_codigo_postal_new = Input::new(100, 350, 200, 30, "Nuevo Código Postal");
+        let input_metros_cuadrados_new = Input::new(100, 400, 200, 30, "Nuevos Metros Cuadrados");
+        let input_cantidad_banios_new = Input::new(100, 450, 200, 30, "Nueva Cantidad de Baños");
+        let input_cantidad_habitaciones_new = Input::new(100, 500, 200, 30, "Nueva Cantidad de Habitaciones");
+        let input_tipo_new = Input::new(100, 550, 200, 30, "Nuevo Tipo");
     
         edit_window.end();
         edit_window.show();
@@ -193,7 +183,8 @@ fn main() -> Result<()> {
                     Ok(rows) => {
                         if rows > 0 {
                             alert(200, 200, "Datos editados exitosamente.");
-                            edit_window.hide(); // Cerrar la ventana después de editar
+                            // Cerrar la ventana después de editar
+                            edit_window.hide(); 
                         } else {
                             alert(200, 200, "No se encontraron datos para editar.");
                         }
@@ -239,6 +230,6 @@ fn mostrar_datos(conn: &Connection) {
             mostrar_datos_ventana(&data_text.to_string());
         }
     } else {
-        println!("Error al mostrar datos");
+        fltk::dialog::alert_default("Error al mostrar los datos");
     }
 }
