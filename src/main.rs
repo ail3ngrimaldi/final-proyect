@@ -15,7 +15,7 @@ mod models;
 
 pub use crate::models::Vivienda;
 
-fn mostrar_datos_ventana(data: &str, conn: Connection) {
+fn mostrar_datos_ventana(data: &str) {
     let mut window = Window::new(100, 100, 1200, 300, "Datos");
     let mut text_buffer = TextBuffer::default();
     let mut text_display = TextDisplay::new(10, 10, 1180, 280, "");
@@ -29,21 +29,7 @@ fn mostrar_datos_ventana(data: &str, conn: Connection) {
     for (index, line) in lines.iter().enumerate() {
         let mut delete_button = Button::new(10, 300 + index as i32 * 30, 80, 20, "Delete");
         let line_copy = line.to_string();
-        let conn_copy = &conn;
 
-        delete_button.set_callback(move |_| {
-            let elements: Vec<_> = line_copy.split(", ").collect();
-            if elements.len() == 8 {
-                let calle = elements[0].split(": ").nth(1).unwrap();
-                let numero = elements[1].split(": ").nth(1).unwrap();
-                let codigo_postal = elements[3].split(": ").nth(1).unwrap();
-                if let Err(err) = database::eliminar_dato(&conn_copy, calle, numero, codigo_postal) {
-                    println!("Error al eliminar dato: {:?}", err);
-                } else {
-                    println!("Dato eliminado correctamente");
-                }
-            }
-        });
     }
 }
 
@@ -99,6 +85,19 @@ fn main() -> Result<()> {
         let cantidad_habitaciones = input_cantidad_habitaciones.value();
         let tipo = input_tipo.value();
 
+        if calle.trim().is_empty()
+        || numero.trim().is_empty()
+        || piso.trim().is_empty()
+        || codigo_postal.trim().is_empty()
+        || metros_cuadrados.trim().is_empty()
+        || cantidad_banios.trim().is_empty()
+        || cantidad_habitaciones.trim().is_empty()
+        || tipo.trim().is_empty()
+    {
+        // Muestra una alerta si alguno de los campos de entrada está vacío
+        fltk::dialog::alert_default("El formulario no puede ser enviado vacío");
+    } else {
+
         database::insertar_datos(
             &conn,
             &calle,
@@ -111,14 +110,13 @@ fn main() -> Result<()> {
             &tipo,
         )
         .expect("Error al insertar datos");
-    
         mostrar_datos(&conn); 
-         
+    }
     });
 
     button_see_data.set_callback(move |_| {
         if let Ok(conn) = Connection::open("datos.db") {
-            mostrar_datos(&conn); // Mostrar datos al hacer clic en "Ver datos"
+            mostrar_datos(&conn);
         } else {
             println!("Error al abrir la conexión");
         }
@@ -134,7 +132,7 @@ fn main() -> Result<()> {
 fn mostrar_datos(conn: &Connection) {
     if let Ok(data) = database::mostrar_datos(conn) {
         if data.is_empty() {
-            println!("No hay datos para mostrar");
+            fltk::dialog::alert_default("No hay datos para mostrar");
         } else {
             let data_text = data
                 .iter()
