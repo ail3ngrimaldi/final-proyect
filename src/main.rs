@@ -6,7 +6,7 @@ use fltk::{
     input::Input,
     prelude::*,
     window::Window,
-    text::{TextBuffer, TextDisplay},
+    text::{TextBuffer, TextDisplay}, dialog::alert,
 };
 use rusqlite::{params, Connection, Result};
 
@@ -40,6 +40,7 @@ fn main() -> Result<()> {
     let mut frame = Frame::new(0, 0, 400, 50, "Completá el formulario");
     let mut button_save = Button::new(110, 520, 80, 40, "Guardar");
     let mut button_see_data = Button::new(210, 520, 80, 40, "Ver datos");
+    let mut delete_window = Button::new(110, 620, 80, 40, "Borrar");
     let mut input_calle = Input::new(100, 100, 200, 30, "Calle");
     let mut input_numero = Input::new(100, 150, 200, 30, "Número");
     let mut input_piso = Input::new(100, 200, 200, 30, "Piso");
@@ -110,7 +111,7 @@ fn main() -> Result<()> {
             &tipo,
         )
         .expect("Error al insertar datos");
-        mostrar_datos(&conn); 
+         fltk::dialog::alert_default("Los datos fueron guardados exitosamente");
     }
     });
 
@@ -122,7 +123,40 @@ fn main() -> Result<()> {
         }
     });
 
-
+    delete_window.set_callback(move |_| {
+        let mut delete_window = Window::new(400, 300, 400, 300, "Borrar datos");
+        let mut delete_frame = Frame::new(0, 0, 400, 50, "Ingresa la Calle y el Número a borrar");
+        let mut delete_button = Button::new(150, 200, 100, 40, "Borrar");
+        let mut input_calle_delete = Input::new(100, 100, 200, 30, "Calle");
+        let mut input_numero_delete = Input::new(100, 150, 200, 30, "Número");
+        delete_window.end();
+        delete_window.show();
+    
+        delete_button.set_callback(move |_| {
+            if let Ok(conn) = Connection::open("datos.db") {
+                let calle_delete = input_calle_delete.value();
+                let numero_delete = input_numero_delete.value();
+        
+                match database::borrar_datos(&conn, &calle_delete, &numero_delete) {
+                    Ok(rows) => {
+                        if rows > 0 {
+                            alert(200, 200, "Datos borrados exitosamente.");
+                            delete_window.hide(); // Cerrar la ventana después de borrar
+                        } else {
+                            alert(200, 200, "No se encontraron datos para borrar.");
+                        }
+                    }
+                    Err(_) => {
+                        alert(200, 200, "Error al borrar datos.");
+                    }
+                }
+            } else {
+                alert(200, 200, "Error al abrir la conexión");
+            }
+        });
+    });
+    
+    
     app.run().unwrap();
 
     Ok(())
