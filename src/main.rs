@@ -148,19 +148,19 @@ fn main() -> Result<()> {
     });
 
     button_edit.set_callback(move |_| {
-        let mut edit_window = Window::new(500, 400, 400, 650, "Editar datos");
-        let mut edit_button = Button::new(150, 600, 150, 40, "Guardar cambios");
-        let input_calle_edit = Input::new(100, 100, 200, 30, "Calle a editar");
-        let input_numero_edit = Input::new(100, 150, 200, 30, "Número a editar");
+        let mut edit_window = Window::new(500, 400, 600, 650, "Editar datos");
+        let mut edit_button = Button::new(250, 600, 150, 40, "Guardar cambios");
+        let input_calle_edit = Input::new(250, 100, 200, 30, "Calle a editar");
+        let input_numero_edit = Input::new(250, 150, 200, 30, "Número a editar");
         // campos para los nuevos datos
-        let input_calle_new = Input::new(100, 200, 200, 30, "Nueva Calle");
-        let input_numero_new = Input::new(100, 250, 200, 30, "Nuevo Número");
-        let input_piso_new = Input::new(100, 300, 200, 30, "Nuevo Piso");
-        let input_codigo_postal_new = Input::new(100, 350, 200, 30, "Nuevo Código Postal");
-        let input_metros_cuadrados_new = Input::new(100, 400, 200, 30, "Nuevos Metros Cuadrados");
-        let input_cantidad_banios_new = Input::new(100, 450, 200, 30, "Nueva Cantidad de Baños");
-        let input_cantidad_habitaciones_new = Input::new(100, 500, 200, 30, "Nueva Cantidad de Habitaciones");
-        let input_tipo_new = Input::new(100, 550, 200, 30, "Nuevo Tipo");
+        let input_calle_new = Input::new(250, 200, 200, 30, "Nueva Calle");
+        let input_numero_new = Input::new(250, 250, 200, 30, "Nuevo Número");
+        let input_piso_new = Input::new(250, 300, 200, 30, "Nuevo Piso");
+        let input_codigo_postal_new = Input::new(250, 350, 200, 30, "Nuevo Código Postal");
+        let input_metros_cuadrados_new = Input::new(250, 400, 200, 30, "Nuevos Metros Cuadrados");
+        let input_cantidad_banios_new = Input::new(250, 450, 200, 30, "Nueva Cantidad de Baños");
+        let input_cantidad_habitaciones_new = Input::new(250, 500, 200, 30, "Nueva Cantidad de Habitaciones");
+        let input_tipo_new = Input::new(250, 550, 200, 30, "Nuevo Tipo");
     
         edit_window.end();
         edit_window.show();
